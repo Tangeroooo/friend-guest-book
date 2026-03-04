@@ -7,11 +7,17 @@
 }
 
 .projector-wrap {
+  --feed-pane: 38%;
   min-height: 100vh;
   padding: 10px;
   display: grid;
-  grid-template-columns: 38% 1fr;
+  grid-template-columns: minmax(260px, var(--feed-pane)) 14px minmax(320px, 1fr);
   gap: 10px;
+}
+
+.live-body.is-resizing {
+  cursor: col-resize;
+  user-select: none;
 }
 
 .projector-feed {
@@ -23,6 +29,36 @@
   display: flex;
   flex-direction: column;
   padding: 8px;
+}
+
+.projector-splitter {
+  position: relative;
+  min-height: 0;
+  border: 1px solid #d0dbd3;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f7faf7 0%, #edf4ee 100%);
+  cursor: col-resize;
+  outline: none;
+}
+
+.projector-splitter::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 56px;
+  border-radius: 999px;
+  background: #7ea98a;
+  transform: translate(-50%, -50%);
+}
+
+.projector-splitter:focus-visible {
+  box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.22);
+}
+
+.projector-splitter.is-dragging::before {
+  background: #2d5a3d;
 }
 
 .feed-list {
@@ -161,5 +197,9 @@
   .projector-wrap {
     grid-template-columns: 1fr;
     grid-template-rows: 50vh 1fr;
+  }
+
+  .projector-splitter {
+    display: none;
   }
 }

@@ -9,20 +9,31 @@ const TABLE_MESSAGES = "guestbook_messages";
 const TABLE_EVENT_SETTINGS = "event_settings";
 const MESSAGE_LIMIT = 160;
 const POLL_INTERVAL_MS = 4000;
+const SPLIT_DEFAULT = 38;
+const SPLIT_MIN = 20;
+const SPLIT_MAX = 80;
+const SPLIT_STEP = 2;
+const FEED_MIN_PX = 260;
+const PDF_MIN_PX = 320;
 
 const feed = document.querySelector("#feed");
+const projectorWrap = document.querySelector(".projector-wrap");
+const splitter = document.querySelector("#splitter");
 const pdfViewerElement = document.querySelector("#pdfViewer");
 const pdfPageInfo = document.querySelector("#pdfPageInfo");
 
 const { eventId, pdfUrl, storageBucket } = getPageConfig();
+const splitStorageKey = `live:split:${eventId}`;
 let supabase = null;
 const renderedMessageIds = new Set();
 let activePdfPath = null;
+let splitRenderScheduled = false;
 const pdfViewer = new PdfPageViewer({
   container: pdfViewerElement,
   pageInfoElement: pdfPageInfo,
   emptyMessage: "선택된 PDF가 없습니다.",
 });
+setupResizableSplit();
 
 try {
   supabase = getSupabase();
@@ -267,6 +278,189 @@ function trimFeed() {
     }
     first.remove();
   }
+}
+
+function setupResizableSplit() {
+  if (!projectorWrap || !splitter) {
+    return;
+  }
+
+  const saved = Number.parseFloat(localStorage.getItem(splitStorageKey) || "");
+  const initial = Number.isFinite(saved) ? saved : SPLIT_DEFAULT;
+  applySplitPercent(initial, false);
+
+  splitter.addEventListener("pointerdown", onSplitPointerDown);
+  splitter.addEventListener("keydown", onSplitKeydown);
+
+  window.addEventListener("resize", () => {
+    if (isStackedLayout()) {
+      return;
+    }
+
+    const current = getCurrentSplitPercent();
+    applySplitPercent(current ?? SPLIT_DEFAULT, false);
+  });
+}
+
+function onSplitPointerDown(event) {
+  if (!splitter || isStackedLayout()) {
+    return;
+  }
+
+  event.preventDefault();
+  splitter.focus();
+  splitter.classList.add("is-dragging");
+  document.body.classList.add("is-resizing");
+  splitter.setPointerCapture(event.pointerId);
+  updateSplitFromClientX(event.clientX, false);
+
+  const handleMove = (moveEvent) => {
+    updateSplitFromClientX(moveEvent.clientX, false);
+  };
+
+  const handleStop = (stopEvent) => {
+    splitter.classList.remove("is-dragging");
+    document.body.classList.remove("is-resizing");
+    if (splitter.hasPointerCapture(stopEvent.pointerId)) {
+      splitter.releasePointerCapture(stopEvent.pointerId);
+    }
+
+    splitter.removeEventListener("pointermove", handleMove);
+    splitter.removeEventListener("pointerup", handleStop);
+    splitter.removeEventListener("pointercancel", handleStop);
+    const current = getCurrentSplitPercent();
+    if (current !== null) {
+      localStorage.setItem(splitStorageKey, current.toFixed(2));
+    }
+    schedulePdfRerender();
+  };
+
+  splitter.addEventListener("pointermove", handleMove);
+  splitter.addEventListener("pointerup", handleStop);
+  splitter.addEventListener("pointercancel", handleStop);
+}
+
+function onSplitKeydown(event) {
+  if (isStackedLayout()) {
+    return;
+  }
+
+  const current = getCurrentSplitPercent() ?? SPLIT_DEFAULT;
+  let next = current;
+
+  if (event.key === "ArrowLeft") {
+    next = current - SPLIT_STEP;
+  }
+  if (event.key === "ArrowRight") {
+    next = current + SPLIT_STEP;
+  }
+  if (event.key === "Home") {
+    next = SPLIT_MIN;
+  }
+  if (event.key === "End") {
+    next = SPLIT_MAX;
+  }
+
+  if (next === current) {
+    return;
+  }
+
+  event.preventDefault();
+  applySplitPercent(next, true);
+}
+
+function updateSplitFromClientX(clientX, persist) {
+  if (!projectorWrap || !splitter) {
+    return;
+  }
+
+  const rect = projectorWrap.getBoundingClientRect();
+  const splitterWidth = splitter.getBoundingClientRect().width || 14;
+  const gap = getWrapColumnGap();
+  const available = rect.width - splitterWidth - gap * 2;
+
+  if (available <= 0) {
+    return;
+  }
+
+  const feedPx = clientX - rect.left - gap - splitterWidth / 2;
+  const nextPercent = (feedPx / available) * 100;
+  applySplitPercent(nextPercent, persist);
+}
+
+function applySplitPercent(percent, persist) {
+  if (!projectorWrap || !splitter) {
+    return;
+  }
+
+  const clamped = clampSplitPercent(percent);
+  projectorWrap.style.setProperty("--feed-pane", `${clamped}%`);
+  splitter.setAttribute("aria-valuenow", String(Math.round(clamped)));
+
+  if (persist) {
+    localStorage.setItem(splitStorageKey, clamped.toFixed(2));
+  }
+}
+
+function clampSplitPercent(percent) {
+  const bounded = Math.min(SPLIT_MAX, Math.max(SPLIT_MIN, percent));
+  if (!projectorWrap || !splitter || isStackedLayout()) {
+    return bounded;
+  }
+
+  const rect = projectorWrap.getBoundingClientRect();
+  const splitterWidth = splitter.getBoundingClientRect().width || 14;
+  const gap = getWrapColumnGap();
+  const available = rect.width - splitterWidth - gap * 2;
+  if (available <= 0) {
+    return bounded;
+  }
+
+  const dynamicMin = Math.max(SPLIT_MIN, (FEED_MIN_PX / available) * 100);
+  const dynamicMax = Math.min(SPLIT_MAX, ((available - PDF_MIN_PX) / available) * 100);
+  if (dynamicMin > dynamicMax) {
+    return bounded;
+  }
+
+  return Math.min(dynamicMax, Math.max(dynamicMin, bounded));
+}
+
+function getCurrentSplitPercent() {
+  if (!projectorWrap) {
+    return null;
+  }
+
+  const value = getComputedStyle(projectorWrap).getPropertyValue("--feed-pane");
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getWrapColumnGap() {
+  if (!projectorWrap) {
+    return 0;
+  }
+
+  const style = getComputedStyle(projectorWrap);
+  const gap = Number.parseFloat(style.columnGap || style.gap || "0");
+  return Number.isFinite(gap) ? gap : 0;
+}
+
+function isStackedLayout() {
+  return window.matchMedia("(max-width: 1120px)").matches;
+}
+
+function schedulePdfRerender() {
+  if (splitRenderScheduled) {
+    return;
+  }
+
+  splitRenderScheduled = true;
+  requestAnimationFrame(() => {
+    splitRenderScheduled = false;
+    pdfViewer.renderCurrentPage().catch((error) => {
+      console.error("PDF rerender after split failed:", error);
+    });
+  });
 }
 
 function scrollToLatest() {

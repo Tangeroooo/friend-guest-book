@@ -4,7 +4,7 @@ import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 const NAV_THROTTLE_MS = 180;
-const RESIZE_DEBOUNCE_MS = 140;
+const RESIZE_DEBOUNCE_MS = 90;
 
 export class PdfPageViewer {
   constructor({ container, pageInfoElement = null, emptyMessage = "선택된 PDF가 없습니다." }) {
@@ -28,6 +28,7 @@ export class PdfPageViewer {
     this.currentUrl = null;
     this.lastNavAt = 0;
     this.resizeTimer = null;
+    this.resizeObserver = null;
 
     this.container.replaceChildren(this.canvas, this.message);
     if (!this.container.hasAttribute("tabindex")) {
@@ -97,17 +98,15 @@ export class PdfPageViewer {
     });
 
     window.addEventListener("resize", () => {
-      if (!this.pdfDoc) {
-        return;
-      }
-
-      window.clearTimeout(this.resizeTimer);
-      this.resizeTimer = window.setTimeout(() => {
-        this.renderCurrentPage().catch((error) => {
-          console.error("PDF resize render failed:", error);
-        });
-      }, RESIZE_DEBOUNCE_MS);
+      this.scheduleResizeRender();
     });
+
+    if (typeof ResizeObserver !== "undefined") {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.scheduleResizeRender();
+      });
+      this.resizeObserver.observe(this.container);
+    }
   }
 
   async load(url) {
@@ -277,6 +276,19 @@ export class PdfPageViewer {
         console.error("Previous PDF loadTask destroy failed:", error);
       }
     }
+  }
+
+  scheduleResizeRender() {
+    if (!this.pdfDoc) {
+      return;
+    }
+
+    window.clearTimeout(this.resizeTimer);
+    this.resizeTimer = window.setTimeout(() => {
+      this.renderCurrentPage().catch((error) => {
+        console.error("PDF resize render failed:", error);
+      });
+    }, RESIZE_DEBOUNCE_MS);
   }
 }
 
