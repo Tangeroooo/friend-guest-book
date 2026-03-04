@@ -30,7 +30,7 @@ const clearSelectionButton = document.querySelector("#clearSelectionButton");
 const pdfStatus = document.querySelector("#pdfStatus");
 const pdfList = document.querySelector("#pdfList");
 
-const { eventId, pdfUrl, storageBucket } = getPageConfig();
+const { eventId, pdfUrl, storageBucket, projectorMode } = getPageConfig();
 const configuredAdminEmail = (import.meta.env.VITE_ADMIN_EMAIL || "").trim();
 let supabase = null;
 const channels = [];
@@ -41,6 +41,9 @@ let currentFiles = [];
 eventName.textContent = eventId;
 if (configuredAdminEmail) {
   adminEmailInput.value = configuredAdminEmail;
+}
+if (projectorMode) {
+  document.body.classList.add("projector-mode");
 }
 
 clock.textContent = formatClock();
@@ -469,7 +472,7 @@ function setViewerPlaceholder(message) {
   pdfFrame.removeAttribute("src");
   pdfFrame.srcdoc = `
   <style>
-    body{font-family:"Nanum Gothic",sans-serif;margin:0;display:grid;place-items:center;height:100%;background:#f5f5f4;color:#1f2937;}
+    body{font-family:"Noto Sans KR",sans-serif;margin:0;display:grid;place-items:center;height:100%;background:#f5f5f4;color:#1f2937;}
     p{padding:24px;line-height:1.6;text-align:center;}
   </style>
   <p>${message}</p>

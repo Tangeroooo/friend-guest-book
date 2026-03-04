@@ -1,73 +1,79 @@
 .write-body {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 18px;
+  padding: 16px;
+  background: linear-gradient(180deg, #2d5a3d 0 120px, #eef5ef 120px);
 }
 
 .write-wrap {
-  width: min(740px, 100%);
+  width: min(760px, 100%);
+  margin: 0 auto;
 }
 
 .write-panel {
-  border-radius: 26px;
-  border: 1px solid #fde68a;
-  background: linear-gradient(155deg, #fffef2, #eef2ff);
-  box-shadow: 0 24px 54px -30px rgba(17, 24, 39, 0.45);
-  padding: clamp(22px, 4vw, 38px);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.12);
+  overflow: hidden;
 }
 
 .write-header {
-  margin-bottom: 24px;
+  padding: 24px 24px 20px;
+  background: linear-gradient(120deg, #6aaf6a, #2d5a3d);
+  color: #ffffff;
 }
 
 .write-eyebrow {
-  display: inline-block;
-  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
   border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
   font-size: 12px;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #1e40af;
-  background: #dbeafe;
 }
 
 .write-header h1 {
-  font-size: clamp(30px, 5vw, 48px);
   margin-top: 10px;
+  font-size: clamp(30px, 5vw, 46px);
+  line-height: 1.08;
 }
 
 .event-label {
   margin-top: 10px;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .guestbook-form {
   display: grid;
-  gap: 10px;
+  gap: 9px;
+  padding: 22px 24px 14px;
 }
 
 .guestbook-form label {
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 700;
   color: #374151;
 }
 
 .guestbook-form input,
 .guestbook-form textarea {
   width: 100%;
-  border: 1px solid #d1d5db;
+  border: 2px solid #e5e7eb;
   border-radius: 12px;
-  padding: 13px 15px;
+  padding: 12px 13px;
   font: inherit;
-  background: #fff;
+  background: #ffffff;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .guestbook-form input:focus,
 .guestbook-form textarea:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
   outline: none;
+  border-color: var(--primary-soft);
+  box-shadow: 0 0 0 4px rgba(106, 175, 106, 0.2);
 }
 
 .guestbook-form textarea {
@@ -75,10 +81,11 @@
 }
 
 .form-meta {
-  margin-top: 6px;
+  margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .form-meta p {
@@ -89,31 +96,49 @@
 .form-meta button {
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #fff;
-  font-size: 16px;
+  background: var(--primary);
+  color: #ffffff;
+  padding: 10px 18px;
+  font: inherit;
   font-weight: 800;
-  padding: 11px 20px;
   cursor: pointer;
-  transition: transform 0.18s ease, opacity 0.18s ease;
+  transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease;
 }
 
 .form-meta button:hover:enabled {
   transform: translateY(-1px);
+  background: var(--primary-dark);
 }
 
 .form-meta button:disabled {
-  opacity: 0.55;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
 .status-text {
-  margin-top: 16px;
   min-height: 1.4em;
+  padding: 0 24px 20px;
   font-weight: 700;
   color: var(--ok);
 }
 
 .status-text.is-error {
   color: var(--error);
+}
+
+@media (max-width: 640px) {
+  .write-body {
+    padding: 10px;
+    background: linear-gradient(180deg, #2d5a3d 0 96px, #eef5ef 96px);
+  }
+
+  .write-header,
+  .guestbook-form {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .status-text {
+    padding: 0 16px 16px;
+  }
 }

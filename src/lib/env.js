@@ -7,6 +7,7 @@ export function getPageConfig() {
     eventId: params.get("event") || import.meta.env.VITE_DEFAULT_EVENT_ID || "general",
     pdfUrl: params.get("pdf") || import.meta.env.VITE_DEFAULT_PDF_URL || "",
     storageBucket: import.meta.env.VITE_PDF_STORAGE_BUCKET || "event-pdfs",
+    projectorMode: params.get("projector") === "1" || params.get("projector") === "true",
   };
 }
 

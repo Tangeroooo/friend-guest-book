@@ -76,6 +76,7 @@ npm run dev
 
 - 작성: `/write.html?event=spring-assembly-2026`
 - 보기: `/live.html?event=spring-assembly-2026`
+- 프로젝터(관리 버튼 숨김): `/live.html?event=spring-assembly-2026&projector=1`
 
 ## 6. GitHub Pages 배포 (`npm run deploy`)
 
