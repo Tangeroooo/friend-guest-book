@@ -28,6 +28,7 @@ let supabase = null;
 const renderedMessageIds = new Set();
 let activePdfPath = null;
 let splitRenderScheduled = false;
+let nextNewFromLeft = true;
 const pdfViewer = new PdfPageViewer({
   container: pdfViewerElement,
   pageInfoElement: pdfPageInfo,
@@ -104,7 +105,7 @@ function subscribeRealtime() {
         }
 
         trimFeed();
-        scrollToLatest();
+        scrollToLatest("smooth");
       },
     )
     .on(
@@ -172,7 +173,7 @@ async function pollNewMessages() {
 
   if (changed) {
     trimFeed();
-    scrollToLatest();
+    scrollToLatest("smooth");
   }
 }
 
@@ -230,7 +231,12 @@ function appendMessageIfNeeded(row, isNew) {
   }
 
   renderedMessageIds.add(id);
-  feed.append(renderMessage(row, isNew));
+  const item = renderMessage(row, isNew);
+  if (isNew) {
+    item.classList.add(nextNewFromLeft ? "is-new-left" : "is-new-right");
+    nextNewFromLeft = !nextNewFromLeft;
+  }
+  feed.append(item);
   return true;
 }
 
@@ -244,24 +250,27 @@ function renderMessage(row, isNew = false) {
     item.classList.add("is-new");
   }
 
-  const top = document.createElement("div");
-  top.className = "feed-item-top";
-
-  const name = document.createElement("p");
-  name.className = "feed-name";
-  name.textContent = row.name || "익명";
-
-  const time = document.createElement("p");
-  time.className = "feed-time";
-  time.textContent = formatGuestTime(row.created_at);
-
-  top.append(name, time);
-
   const message = document.createElement("p");
   message.className = "feed-message";
   message.textContent = row.message || "";
 
-  item.append(top, message);
+  const meta = document.createElement("div");
+  meta.className = "feed-meta";
+
+  const name = document.createElement("span");
+  name.className = "feed-name";
+  name.textContent = row.name || "익명";
+
+  const dot = document.createElement("span");
+  dot.className = "feed-dot";
+  dot.textContent = "·";
+
+  const time = document.createElement("span");
+  time.className = "feed-time";
+  time.textContent = formatGuestTime(row.created_at);
+
+  meta.append(name, dot, time);
+  item.append(message, meta);
   return item;
 }
 
@@ -463,9 +472,11 @@ function schedulePdfRerender() {
   });
 }
 
-function scrollToLatest() {
-  feed.scrollTo({
-    top: feed.scrollHeight,
-    behavior: "smooth",
+function scrollToLatest(behavior = "auto") {
+  requestAnimationFrame(() => {
+    feed.scrollTo({
+      top: feed.scrollHeight,
+      behavior,
+    });
   });
 }
