@@ -89,19 +89,61 @@
 }
 
 .projector-pdf {
+  position: relative;
   min-height: 0;
   border: 1px solid #dbe5dd;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  background: #fff;
+  background: #0f1720;
 }
 
-.pdf-frame {
+.pdf-viewer {
   width: 100%;
   height: 100%;
-  border: 0;
+  display: grid;
+  place-items: center;
+  background: #0f1720;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.pdf-canvas {
+  display: block;
   background: #fff;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+}
+
+.pdf-placeholder {
+  margin: 0;
+  padding: 16px;
+  color: #d1d5db;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.pdf-placeholder.is-hidden {
+  display: none;
+}
+
+.pdf-page-info {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  margin: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-family: "Poppins", "Noto Sans KR", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+}
+
+.pdf-page-info.is-hidden {
+  display: none;
 }
 
 @keyframes popIn {

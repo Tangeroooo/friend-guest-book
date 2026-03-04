@@ -2,6 +2,7 @@ import "./styles/base.css";
 import "./styles/admin.css";
 import { getPageConfig } from "./lib/env";
 import { getSupabase } from "./lib/supabase";
+import { PdfPageViewer } from "./lib/pdfViewer";
 
 const TABLE_EVENT_SETTINGS = "event_settings";
 
@@ -23,13 +24,19 @@ const refreshFilesButton = document.querySelector("#refreshFilesButton");
 const clearSelectionButton = document.querySelector("#clearSelectionButton");
 const pdfStatus = document.querySelector("#pdfStatus");
 const pdfList = document.querySelector("#pdfList");
-const pdfFrame = document.querySelector("#pdfFrame");
+const pdfViewerElement = document.querySelector("#pdfViewer");
+const pdfPageInfo = document.querySelector("#pdfPageInfo");
 
 const { eventId, storageBucket } = getPageConfig();
 const configuredAdminEmail = (import.meta.env.VITE_ADMIN_EMAIL || "").trim();
 let supabase = null;
 let activePdfPath = null;
 let currentFiles = [];
+const pdfViewer = new PdfPageViewer({
+  container: pdfViewerElement,
+  pageInfoElement: pdfPageInfo,
+  emptyMessage: "선택된 PDF가 없습니다.",
+});
 
 eventName.textContent = eventId;
 openLiveLink.href = `./live.html?event=${encodeURIComponent(eventId)}`;
@@ -37,7 +44,6 @@ if (configuredAdminEmail) {
   adminEmailInput.value = configuredAdminEmail;
 }
 
-setViewerPlaceholder("선택된 PDF가 없습니다.");
 bindEvents();
 
 try {
@@ -130,6 +136,7 @@ async function handleLogin(event) {
 async function handleLogout() {
   await supabase.auth.signOut();
   pdfList.innerHTML = "";
+  pdfViewer.clear("선택된 PDF가 없습니다.");
   setPdfStatus("");
   showAuthGate();
   setAuthStatus("로그아웃되었습니다.");
@@ -290,25 +297,23 @@ async function applySelectedPdf(path) {
   renderPdfList();
 
   if (!path) {
-    setViewerPlaceholder("선택된 PDF가 없습니다.");
+    pdfViewer.clear("선택된 PDF가 없습니다.");
     return;
   }
 
   const { data: publicData } = supabase.storage.from(storageBucket).getPublicUrl(path);
   if (publicData?.publicUrl) {
-    pdfFrame.removeAttribute("srcdoc");
-    pdfFrame.src = publicData.publicUrl;
+    await pdfViewer.load(publicData.publicUrl);
     return;
   }
 
   const signed = await supabase.storage.from(storageBucket).createSignedUrl(path, 86400);
   if (signed.error || !signed.data?.signedUrl) {
-    setViewerPlaceholder("PDF 미리보기를 불러올 수 없습니다.");
+    pdfViewer.clear("PDF 미리보기를 불러올 수 없습니다.");
     return;
   }
 
-  pdfFrame.removeAttribute("srcdoc");
-  pdfFrame.src = signed.data.signedUrl;
+  await pdfViewer.load(signed.data.signedUrl);
 }
 
 function renderPdfList() {
@@ -366,17 +371,6 @@ function renderPdfList() {
 function sanitizeFileName(fileName) {
   const cleaned = fileName.toLowerCase().replace(/[^a-z0-9._-]/g, "-");
   return cleaned.replace(/-+/g, "-");
-}
-
-function setViewerPlaceholder(message) {
-  pdfFrame.removeAttribute("src");
-  pdfFrame.srcdoc = `
-    <style>
-      body{font-family:"Noto Sans KR",sans-serif;margin:0;display:grid;place-items:center;height:100%;background:#f5f5f4;color:#1f2937;}
-      p{padding:18px;line-height:1.6;text-align:center;}
-    </style>
-    <p>${message}</p>
-  `;
 }
 
 function showAuthGate() {

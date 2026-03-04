@@ -3,6 +3,7 @@ import "./styles/live.css";
 import { getPageConfig } from "./lib/env";
 import { getSupabase } from "./lib/supabase";
 import { formatGuestTime } from "./lib/format";
+import { PdfPageViewer } from "./lib/pdfViewer";
 
 const TABLE_MESSAGES = "guestbook_messages";
 const TABLE_EVENT_SETTINGS = "event_settings";
@@ -10,14 +11,18 @@ const MESSAGE_LIMIT = 160;
 const POLL_INTERVAL_MS = 4000;
 
 const feed = document.querySelector("#feed");
-const pdfFrame = document.querySelector("#pdfFrame");
+const pdfViewerElement = document.querySelector("#pdfViewer");
+const pdfPageInfo = document.querySelector("#pdfPageInfo");
 
 const { eventId, pdfUrl, storageBucket } = getPageConfig();
 let supabase = null;
 const renderedMessageIds = new Set();
 let activePdfPath = null;
-
-setViewerPlaceholder("선택된 PDF가 없습니다.");
+const pdfViewer = new PdfPageViewer({
+  container: pdfViewerElement,
+  pageInfoElement: pdfPageInfo,
+  emptyMessage: "선택된 PDF가 없습니다.",
+});
 
 try {
   supabase = getSupabase();
@@ -184,30 +189,27 @@ async function applySelectedPdf(path) {
 
   if (!path) {
     if (pdfUrl) {
-      pdfFrame.removeAttribute("srcdoc");
-      pdfFrame.src = pdfUrl;
+      await pdfViewer.load(pdfUrl);
       return;
     }
 
-    setViewerPlaceholder("선택된 PDF가 없습니다.");
+    pdfViewer.clear("선택된 PDF가 없습니다.");
     return;
   }
 
   const { data } = supabase.storage.from(storageBucket).getPublicUrl(path);
   if (data?.publicUrl) {
-    pdfFrame.removeAttribute("srcdoc");
-    pdfFrame.src = data.publicUrl;
+    await pdfViewer.load(data.publicUrl);
     return;
   }
 
   const signed = await supabase.storage.from(storageBucket).createSignedUrl(path, 3600);
-  if (signed.error) {
-    setViewerPlaceholder("PDF URL을 불러올 수 없습니다.");
+  if (signed.error || !signed.data?.signedUrl) {
+    pdfViewer.clear("PDF URL을 불러올 수 없습니다.");
     return;
   }
 
-  pdfFrame.removeAttribute("srcdoc");
-  pdfFrame.src = signed.data.signedUrl;
+  await pdfViewer.load(signed.data.signedUrl);
 }
 
 function appendMessageIfNeeded(row, isNew) {
@@ -272,15 +274,4 @@ function scrollToLatest() {
     top: feed.scrollHeight,
     behavior: "smooth",
   });
-}
-
-function setViewerPlaceholder(message) {
-  pdfFrame.removeAttribute("src");
-  pdfFrame.srcdoc = `
-    <style>
-      body{font-family:"Noto Sans KR",sans-serif;margin:0;display:grid;place-items:center;height:100%;background:#f5f5f4;color:#1f2937;}
-      p{padding:20px;line-height:1.6;text-align:center;}
-    </style>
-    <p>${message}</p>
-  `;
 }

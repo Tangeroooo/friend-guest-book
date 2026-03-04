@@ -72,13 +72,13 @@
 
       <section class="preview-panel">
         <h2>선택된 PDF 미리보기</h2>
-        <iframe
-          id="pdfFrame"
-          class="pdf-frame"
+        <div
+          id="pdfViewer"
+          class="pdf-viewer"
           title="선택된 안내 PDF 미리보기"
-          loading="eager"
-          referrerpolicy="no-referrer"
-        ></iframe>
+          aria-label="선택된 안내 PDF 미리보기"
+        ></div>
+        <p id="pdfPageInfo" class="pdf-page-info is-hidden" aria-live="polite"></p>
       </section>
     </main>
 
