@@ -28,7 +28,7 @@ let supabase = null;
 const renderedMessageIds = new Set();
 let activePdfPath = null;
 let splitRenderScheduled = false;
-let nextNewFromLeft = true;
+let nextBubbleFromLeft = true;
 const pdfViewer = new PdfPageViewer({
   container: pdfViewerElement,
   pageInfoElement: pdfPageInfo,
@@ -231,10 +231,12 @@ function appendMessageIfNeeded(row, isNew) {
   }
 
   renderedMessageIds.add(id);
+  const isLeft = nextBubbleFromLeft;
+  nextBubbleFromLeft = !nextBubbleFromLeft;
   const item = renderMessage(row, isNew);
+  item.classList.add(isLeft ? "is-left" : "is-right");
   if (isNew) {
-    item.classList.add(nextNewFromLeft ? "is-new-left" : "is-new-right");
-    nextNewFromLeft = !nextNewFromLeft;
+    item.classList.add(isLeft ? "is-new-left" : "is-new-right");
   }
   feed.append(item);
   return true;
@@ -252,7 +254,9 @@ function renderMessage(row, isNew = false) {
 
   const message = document.createElement("p");
   message.className = "feed-message";
-  message.textContent = row.message || "";
+  const text = row.message || "";
+  item.style.setProperty("--msg-size", `${computeMessageFontSize(text)}px`);
+  message.textContent = text;
 
   const meta = document.createElement("div");
   meta.className = "feed-meta";
@@ -272,6 +276,24 @@ function renderMessage(row, isNew = false) {
   meta.append(name, dot, time);
   item.append(message, meta);
   return item;
+}
+
+function computeMessageFontSize(text) {
+  const len = (text || "").length;
+  const minSize = 17;
+  const maxSize = 28;
+  const fromLen = 18;
+  const toLen = 220;
+
+  if (len <= fromLen) {
+    return maxSize;
+  }
+  if (len >= toLen) {
+    return minSize;
+  }
+
+  const ratio = (len - fromLen) / (toLen - fromLen);
+  return Number((maxSize - (maxSize - minSize) * ratio).toFixed(2));
 }
 
 function trimFeed() {
