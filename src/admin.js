@@ -220,23 +220,26 @@ async function handleUploadPdf(event) {
   uploadButton.disabled = true;
   uploadButton.textContent = "업로드 중...";
 
-  const { error } = await supabase.storage
-    .from(storageBucket)
-    .upload(objectPath, file, { contentType: "application/pdf", upsert: false });
+  try {
+    const { error } = await supabase.storage
+      .from(storageBucket)
+      .upload(objectPath, file, { contentType: "application/pdf", upsert: false });
 
-  uploadButton.disabled = false;
-  uploadButton.textContent = "PDF 업로드";
+    if (error) {
+      throw error;
+    }
 
-  if (error) {
+    await updateActivePdfSetting(objectPath);
+    await refreshPdfFiles();
+    await applySelectedPdf(objectPath);
+    uploadForm.reset();
+    setPdfStatus("업로드 후 즉시 적용되었습니다.");
+  } catch (error) {
     setPdfStatus(`업로드 실패: ${error.message}`, true);
-    return;
+  } finally {
+    uploadButton.disabled = false;
+    uploadButton.textContent = "PDF 업로드";
   }
-
-  await updateActivePdfSetting(objectPath);
-  await refreshPdfFiles();
-  await applySelectedPdf(objectPath);
-  uploadForm.reset();
-  setPdfStatus("업로드 후 즉시 적용되었습니다.");
 }
 
 async function selectPdf(path) {
@@ -291,12 +294,19 @@ async function applySelectedPdf(path) {
     return;
   }
 
-  const { data, error } = await supabase.storage.from(storageBucket).createSignedUrl(path, 86400);
-  if (error) {
-    throw error;
+  const { data: publicData } = supabase.storage.from(storageBucket).getPublicUrl(path);
+  if (publicData?.publicUrl) {
+    pdfFrame.src = publicData.publicUrl;
+    return;
   }
 
-  pdfFrame.src = data.signedUrl;
+  const signed = await supabase.storage.from(storageBucket).createSignedUrl(path, 86400);
+  if (signed.error || !signed.data?.signedUrl) {
+    setViewerPlaceholder("PDF 미리보기를 불러올 수 없습니다.");
+    return;
+  }
+
+  pdfFrame.src = signed.data.signedUrl;
 }
 
 function renderPdfList() {
