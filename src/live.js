@@ -9,6 +9,9 @@ const TABLE_MESSAGES = "guestbook_messages";
 const TABLE_EVENT_SETTINGS = "event_settings";
 const MESSAGE_LIMIT = 160;
 const POLL_INTERVAL_MS = 4000;
+const MESSAGE_MAX_CHARS = 240;
+const MESSAGE_FONT_MAX_PX = 31;
+const MESSAGE_FONT_MIN_PX = 15.5;
 const SPLIT_DEFAULT = 38;
 const SPLIT_MIN = 20;
 const SPLIT_MAX = 80;
@@ -279,21 +282,16 @@ function renderMessage(row, isNew = false) {
 }
 
 function computeMessageFontSize(text) {
-  const len = (text || "").length;
-  const minSize = 17;
-  const maxSize = 28;
-  const fromLen = 18;
-  const toLen = 220;
-
-  if (len <= fromLen) {
-    return maxSize;
-  }
-  if (len >= toLen) {
-    return minSize;
+  const len = Math.max(0, (text || "").trim().length);
+  if (len === 0) {
+    return MESSAGE_FONT_MAX_PX;
   }
 
-  const ratio = (len - fromLen) / (toLen - fromLen);
-  return Number((maxSize - (maxSize - minSize) * ratio).toFixed(2));
+  const normalized = Math.min(len, MESSAGE_MAX_CHARS) / MESSAGE_MAX_CHARS;
+  // Continuous easing curve for gradual size reduction across the full length range.
+  const eased = 1 - Math.pow(1 - normalized, 1.35);
+  const size = MESSAGE_FONT_MAX_PX - (MESSAGE_FONT_MAX_PX - MESSAGE_FONT_MIN_PX) * eased;
+  return Number(size.toFixed(2));
 }
 
 function trimFeed() {
