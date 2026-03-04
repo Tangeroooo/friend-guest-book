@@ -1,6 +1,7 @@
 .live-body {
   margin: 0;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background:
     radial-gradient(circle at 14% 8%, rgba(45, 90, 61, 0.08), transparent 38%),
     #eef5ef;
@@ -8,8 +9,10 @@
 
 .projector-wrap {
   --feed-pane: 38%;
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
   padding: 10px;
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: minmax(260px, var(--feed-pane)) 14px minmax(320px, 1fr);
   gap: 10px;
@@ -22,6 +25,7 @@
 
 .projector-feed {
   min-height: 0;
+  overflow: hidden;
   border: 1px solid #dbe5dd;
   border-radius: 10px;
   background: #ffffff;
@@ -62,6 +66,7 @@
 }
 
 .feed-list {
+  flex: 1 1 auto;
   min-height: 0;
   display: grid;
   align-content: start;
