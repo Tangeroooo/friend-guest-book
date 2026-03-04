@@ -40,9 +40,9 @@ try {
 
 async function bootstrap() {
   await loadInitialMessages();
-  await loadActivePdfSetting();
   subscribeRealtime();
   startPollingFallback();
+  await safeLoadActivePdfSetting();
 }
 
 async function loadInitialMessages() {
@@ -122,10 +122,16 @@ function startPollingFallback() {
       console.error("Message polling failed:", error);
     });
 
-    loadActivePdfSetting().catch((error) => {
-      console.error("PDF polling failed:", error);
-    });
+    safeLoadActivePdfSetting();
   }, POLL_INTERVAL_MS);
+}
+
+async function safeLoadActivePdfSetting() {
+  try {
+    await loadActivePdfSetting();
+  } catch (error) {
+    console.error("PDF setting load failed:", error);
+  }
 }
 
 async function pollNewMessages() {
