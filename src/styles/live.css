@@ -126,7 +126,7 @@
 .feed-name {
   font-weight: 800;
   color: #1f2937;
-  font-size: 14px;
+  font-size: 17px;
 }
 
 .feed-time {
@@ -141,7 +141,7 @@
   color: #0f172a;
   font-size: var(--msg-size, clamp(18px, 1.9vw, 27px));
   line-height: 1.55;
-  font-weight: 800;
+  font-weight: 700;
   word-break: break-word;
 }
 
