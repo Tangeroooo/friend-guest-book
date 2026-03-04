@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>방명록 작성</title>
+    <script type="module" crossorigin src="/friend-guest-book/assets/write-CtMDyB3_.js"></script>
+    <link rel="modulepreload" crossorigin href="/friend-guest-book/assets/base-CG_MumVF.js">
+    <link rel="modulepreload" crossorigin href="/friend-guest-book/assets/supabase-CMlqUpYb.js">
+    <link rel="stylesheet" crossorigin href="/friend-guest-book/assets/base-MwfEZJYZ.css">
+    <link rel="stylesheet" crossorigin href="/friend-guest-book/assets/write-DZg15M4w.css">
+  </head>
+  <body class="write-body">
+    <main class="write-wrap">
+      <section class="write-panel">
+        <header class="write-header">
+          <p class="write-eyebrow">Live Guest Book</p>
+          <h1>방명록 작성하기</h1>
+          <p id="eventLabel" class="event-label"></p>
+        </header>
+
+        <form id="guestbookForm" class="guestbook-form" novalidate>
+          <label for="name">이름</label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            maxlength="24"
+            autocomplete="name"
+            placeholder="홍길동"
+            required
+          />
+
+          <label for="message">메시지</label>
+          <textarea
+            id="message"
+            name="message"
+            rows="5"
+            maxlength="240"
+            placeholder="축복합니다! 오늘도 함께해서 기쁩니다."
+            required
+          ></textarea>
+
+          <div class="form-meta">
+            <p id="charCounter">0 / 240</p>
+            <button id="submitButton" type="submit">등록</button>
+          </div>
+        </form>
+
+        <p id="statusText" class="status-text" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+  </body>
+</html>

@@ -1,0 +1,1 @@
+import"./base-CG_MumVF.js";const s=document.querySelectorAll(".home-card");for(const t of s)t.addEventListener("mousemove",o=>{const e=t.getBoundingClientRect(),n=(o.clientX-e.left)/e.width*100,c=(o.clientY-e.top)/e.height*100;t.style.setProperty("--mx",`${n}%`),t.style.setProperty("--my",`${c}%`)});
