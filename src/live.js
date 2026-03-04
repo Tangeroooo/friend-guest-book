@@ -184,6 +184,7 @@ async function applySelectedPdf(path) {
 
   if (!path) {
     if (pdfUrl) {
+      pdfFrame.removeAttribute("srcdoc");
       pdfFrame.src = pdfUrl;
       return;
     }
@@ -194,6 +195,7 @@ async function applySelectedPdf(path) {
 
   const { data } = supabase.storage.from(storageBucket).getPublicUrl(path);
   if (data?.publicUrl) {
+    pdfFrame.removeAttribute("srcdoc");
     pdfFrame.src = data.publicUrl;
     return;
   }
@@ -204,6 +206,7 @@ async function applySelectedPdf(path) {
     return;
   }
 
+  pdfFrame.removeAttribute("srcdoc");
   pdfFrame.src = signed.data.signedUrl;
 }
 
