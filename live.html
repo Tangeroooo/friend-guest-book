@@ -4,11 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>실시간 방명록 라이브</title>
-    <script type="module" crossorigin src="/friend-guest-book/assets/live-U4z_cq1i.js"></script>
+    <script type="module" crossorigin src="/friend-guest-book/assets/live-DZMIG8gc.js"></script>
     <link rel="modulepreload" crossorigin href="/friend-guest-book/assets/base-BsSoNj6H.js">
     <link rel="modulepreload" crossorigin href="/friend-guest-book/assets/supabase-CMlqUpYb.js">
+    <link rel="modulepreload" crossorigin href="/friend-guest-book/assets/pdfViewer-wKbFlbp8.js">
     <link rel="stylesheet" crossorigin href="/friend-guest-book/assets/base-D6UsKcMK.css">
-    <link rel="stylesheet" crossorigin href="/friend-guest-book/assets/live-C22HRNBn.css">
+    <link rel="stylesheet" crossorigin href="/friend-guest-book/assets/live-Ca3dantX.css">
   </head>
   <body class="live-body">
     <main class="projector-wrap">
@@ -17,13 +18,13 @@
       </section>
 
       <section class="projector-pdf">
-        <iframe
-          id="pdfFrame"
-          class="pdf-frame"
-          title="행사 안내 PDF"
-          loading="eager"
-          referrerpolicy="no-referrer"
-        ></iframe>
+        <div
+          id="pdfViewer"
+          class="pdf-viewer"
+          title="행사 안내 PDF 뷰어"
+          aria-label="행사 안내 PDF 뷰어"
+        ></div>
+        <p id="pdfPageInfo" class="pdf-page-info is-hidden" aria-live="polite"></p>
       </section>
     </main>
 
