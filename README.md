@@ -3,15 +3,16 @@
 GitHub Pages + Supabase 기반 실시간 방명록입니다.
 
 - `/write.html`: 누구나 메시지 작성 (anon insert 허용)
-- `/live.html`: 관리자 로그인 후 실시간 보기
-  - 좌측: 실시간 방명록
-  - 우측: PDF 업로드/삭제/선택 + 뷰어
+- `/live.html`: 라이브 표시 전용 (실시간 방명록 + PDF)
+- `/admin.html`: 관리자 로그인 후 PDF 업로드/삭제/선택
 
 ## 1. Supabase SQL 적용
 
 Supabase SQL Editor에서 아래 파일을 실행하세요.
 
 - `supabase/schema.sql`
+
+이미 이전 버전을 적용했다면, 최신 `schema.sql`을 다시 실행해 정책/버킷 설정을 업데이트하세요.
 
 그리고 Realtime에서 아래 테이블을 활성화하세요.
 
@@ -24,12 +25,12 @@ Supabase SQL Editor에서 아래 파일을 실행하세요.
 - `admin_accounts` 테이블
 - `event_settings` 테이블
 - `is_admin()` 함수
-- RLS 정책 (관리자 전용 조회/스토리지 제어)
+- RLS 정책 (`live` 공개 조회 + `admin` 전용 관리)
 - Storage bucket (`event-pdfs`) 생성/정책
 
 ## 2. 관리자 계정 등록
 
-`/live.html`은 Supabase Auth 로그인 + `is_admin()` 권한 확인을 통과해야 접근됩니다.
+`/admin.html`은 Supabase Auth 로그인 + `is_admin()` 권한 확인을 통과해야 접근됩니다.
 
 1. Supabase Auth에서 관리자 이메일 계정 생성
 2. `public.admin_accounts`에 같은 이메일 등록
@@ -54,7 +55,7 @@ cp .env.example .env
 | --- | --- |
 | `VITE_SUPABASE_URL` | Supabase 프로젝트 URL |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anon key |
-| `VITE_ADMIN_EMAIL` | `/live.html` 로그인 폼 기본 이메일 (선택) |
+| `VITE_ADMIN_EMAIL` | `/admin.html` 로그인 폼 기본 이메일 (선택) |
 | `VITE_DEFAULT_EVENT_ID` | 기본 행사 코드 |
 | `VITE_DEFAULT_PDF_URL` | `event_settings`가 비어 있을 때만 쓰는 초기 PDF URL (선택) |
 | `VITE_PDF_STORAGE_BUCKET` | PDF 저장 bucket 이름 (기본 `event-pdfs`) |
@@ -76,7 +77,7 @@ npm run dev
 
 - 작성: `/write.html?event=spring-assembly-2026`
 - 보기: `/live.html?event=spring-assembly-2026`
-- 프로젝터(관리 버튼 숨김): `/live.html?event=spring-assembly-2026&projector=1`
+- 관리자: `/admin.html?event=spring-assembly-2026`
 
 ## 6. GitHub Pages 배포 (`npm run deploy`)
 

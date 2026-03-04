@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>방명록 관리자</title>
+  </head>
+  <body class="admin-body">
+    <main id="authGate" class="auth-wrap">
+      <section class="auth-card">
+        <p class="auth-eyebrow">Admin Area</p>
+        <h1>관리자 로그인</h1>
+        <p class="auth-help">PDF 업로드/선택/삭제를 하려면 로그인해 주세요.</p>
+
+        <form id="loginForm" class="login-form" novalidate>
+          <label for="adminEmail">이메일</label>
+          <input
+            id="adminEmail"
+            name="email"
+            type="email"
+            autocomplete="username"
+            placeholder="admin@example.com"
+            required
+          />
+
+          <label for="adminPassword">비밀번호</label>
+          <input
+            id="adminPassword"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="비밀번호"
+            required
+          />
+
+          <button id="loginButton" type="submit">로그인</button>
+        </form>
+
+        <p id="authStatus" class="auth-status" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <main id="adminApp" class="admin-wrap is-hidden">
+      <header class="admin-head">
+        <div>
+          <p class="head-label">EVENT</p>
+          <p id="eventName" class="head-value"></p>
+        </div>
+        <div class="head-actions">
+          <a id="openLiveLink" class="link-button" target="_blank" rel="noopener">라이브 열기</a>
+          <button id="logoutButton" type="button">로그아웃</button>
+        </div>
+      </header>
+
+      <section class="admin-panel">
+        <h2>안내 자료 관리</h2>
+        <p class="admin-help">PDF를 업로드하면 최신 파일이 라이브 화면에 바로 반영됩니다.</p>
+
+        <form id="uploadForm" class="upload-form" novalidate>
+          <input id="pdfInput" type="file" accept="application/pdf" required />
+          <button id="uploadButton" type="submit">PDF 업로드</button>
+        </form>
+
+        <div class="pdf-actions">
+          <button id="refreshFilesButton" type="button">목록 새로고침</button>
+          <button id="clearSelectionButton" type="button">선택 해제</button>
+        </div>
+
+        <p id="pdfStatus" class="pdf-status" role="status" aria-live="polite"></p>
+        <div id="pdfList" class="pdf-list"></div>
+      </section>
+
+      <section class="preview-panel">
+        <h2>선택된 PDF 미리보기</h2>
+        <iframe
+          id="pdfFrame"
+          class="pdf-frame"
+          title="선택된 안내 PDF 미리보기"
+          loading="eager"
+          referrerpolicy="no-referrer"
+        ></iframe>
+      </section>
+    </main>
+
+    <script type="module" src="/src/admin.js"></script>
+  </body>
+</html>

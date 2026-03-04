@@ -8,6 +8,7 @@ export default defineConfig(() => ({
         index: "index.html",
         write: "write.html",
         live: "live.html",
+        admin: "admin.html",
       },
     },
   },

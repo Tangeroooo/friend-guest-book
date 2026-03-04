@@ -3,99 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>실시간 방명록 보기</title>
+    <title>실시간 방명록 라이브</title>
   </head>
   <body class="live-body">
-    <main id="authGate" class="auth-wrap">
-      <section class="auth-card">
-        <p class="auth-eyebrow">Admin Only</p>
-        <h1>실시간 방명록 관리자 로그인</h1>
-        <p class="auth-help">
-          Supabase Auth 관리자 계정으로 로그인해야 실시간 화면에 접근할 수 있습니다.
-        </p>
-
-        <form id="loginForm" class="login-form" novalidate>
-          <label for="adminEmail">이메일</label>
-          <input
-            id="adminEmail"
-            name="email"
-            type="email"
-            autocomplete="username"
-            placeholder="admin@example.com"
-            required
-          />
-
-          <label for="adminPassword">비밀번호</label>
-          <input
-            id="adminPassword"
-            name="password"
-            type="password"
-            autocomplete="current-password"
-            placeholder="비밀번호"
-            required
-          />
-
-          <button id="loginButton" type="submit">로그인</button>
-        </form>
-
-        <p id="authStatus" class="auth-status" role="status" aria-live="polite"></p>
+    <main class="projector-wrap">
+      <section class="projector-feed">
+        <div id="feed" class="feed-list" aria-live="polite"></div>
       </section>
-    </main>
 
-    <main id="liveApp" class="live-wrap is-hidden">
-      <header class="live-statusbar">
-        <div>
-          <p class="status-label">EVENT</p>
-          <p id="eventName" class="status-value"></p>
-        </div>
-        <div>
-          <p class="status-label">TIME</p>
-          <p id="clock" class="status-value"></p>
-        </div>
-        <div>
-          <p class="status-label">TOTAL</p>
-          <p id="messageCount" class="status-value">0</p>
-        </div>
-        <div class="status-actions">
-          <button id="logoutButton" type="button">로그아웃</button>
-        </div>
-      </header>
-
-      <section class="live-main">
-        <article class="feed-panel">
-          <h1>실시간 방명록</h1>
-          <div id="feed" class="feed-list" aria-live="polite"></div>
-        </article>
-
-        <article class="slide-panel">
-          <div class="slide-header">
-            <h2>안내 자료</h2>
-            <p>PDF 업로드/삭제/선택 후 화면에 즉시 반영됩니다.</p>
-          </div>
-
-          <div class="pdf-admin">
-            <form id="uploadForm" class="upload-form" novalidate>
-              <input id="pdfInput" type="file" accept="application/pdf" required />
-              <button id="uploadButton" type="submit">PDF 업로드</button>
-            </form>
-
-            <div class="pdf-actions">
-              <button id="refreshFilesButton" type="button">목록 새로고침</button>
-              <button id="clearSelectionButton" type="button">뷰어 비우기</button>
-            </div>
-
-            <p id="pdfStatus" class="pdf-status" role="status" aria-live="polite"></p>
-            <div id="pdfList" class="pdf-list"></div>
-          </div>
-
-          <iframe
-            id="pdfFrame"
-            class="pdf-frame"
-            title="행사 안내 PDF"
-            loading="eager"
-            referrerpolicy="no-referrer"
-          ></iframe>
-        </article>
+      <section class="projector-pdf">
+        <iframe
+          id="pdfFrame"
+          class="pdf-frame"
+          title="행사 안내 PDF"
+          loading="eager"
+          referrerpolicy="no-referrer"
+        ></iframe>
       </section>
     </main>
 

@@ -74,13 +74,14 @@ execute function public.touch_event_settings_updated_at();
 drop policy if exists "anon can read visible guestbook rows" on public.guestbook_messages;
 drop policy if exists "anon can insert guestbook rows" on public.guestbook_messages;
 drop policy if exists "admin can read guestbook rows" on public.guestbook_messages;
+drop policy if exists "anyone can read visible guestbook rows" on public.guestbook_messages;
 drop policy if exists "anyone can insert guestbook rows" on public.guestbook_messages;
 
-create policy "admin can read guestbook rows"
+create policy "anyone can read visible guestbook rows"
   on public.guestbook_messages
   for select
-  to authenticated
-  using (public.is_admin() and is_hidden = false);
+  to anon, authenticated
+  using (is_hidden = false);
 
 create policy "anyone can insert guestbook rows"
   on public.guestbook_messages
@@ -96,12 +97,13 @@ create policy "anyone can insert guestbook rows"
 drop policy if exists "admin can read event settings" on public.event_settings;
 drop policy if exists "admin can insert event settings" on public.event_settings;
 drop policy if exists "admin can update event settings" on public.event_settings;
+drop policy if exists "anyone can read event settings" on public.event_settings;
 
-create policy "admin can read event settings"
+create policy "anyone can read event settings"
   on public.event_settings
   for select
-  to authenticated
-  using (public.is_admin());
+  to anon, authenticated
+  using (true);
 
 create policy "admin can insert event settings"
   on public.event_settings
@@ -120,7 +122,7 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 values (
   'event-pdfs',
   'event-pdfs',
-  false,
+  true,
   15728640,
   array['application/pdf']::text[]
 )

@@ -111,7 +111,7 @@ a {
 
 .home-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -158,12 +158,22 @@ a {
   border-left: 4px solid var(--accent);
 }
 
+.home-card-admin {
+  border-left: 4px solid #2f7e65;
+}
+
 @media (max-width: 880px) {
   .home-body {
     padding: 14px;
     background: linear-gradient(180deg, #2d5a3d 0 120px, #eff5ef 120px);
   }
 
+  .home-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
   .home-grid {
     grid-template-columns: 1fr;
   }
